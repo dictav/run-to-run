@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option go_package = "proto";
+
+message HelloRequest {
+};
+
+message HelloResponse {
+  string text = 1;
+};
+
+service Hello {
+  rpc Hello (HelloRequest) returns (HelloResponse);
+};
+
+message WorldRequest {
+  string text = 1;
+};
+
+message WorldResponse {
+  string text = 1;
+};
+
+service World {
+  rpc World (WorldRequest) returns (WorldResponse);
+};
