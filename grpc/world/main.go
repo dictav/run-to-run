@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	_log "log"
 	"net"
 	"os"
 
@@ -10,6 +11,8 @@ import (
 
 	"google.golang.org/grpc"
 )
+
+var log = _log.New(os.Stderr, "", 0)
 
 func main() {
 	port := os.Getenv("PORT")
@@ -26,14 +29,14 @@ func main() {
 
 	listen, err := net.Listen("tcp", ep)
 	if err != nil {
-		println(err.Error())
+		log.Println(err)
 		os.Exit(2)
 	}
 
-	println("Starting: gRPC Listener", ep)
+	log.Println("grpc-world is listensing onr", ep)
 
 	if err := srv.Serve(listen); err != nil {
-		println(err.Error())
+		log.Println(err)
 		os.Exit(2)
 	}
 

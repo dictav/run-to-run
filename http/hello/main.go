@@ -2,10 +2,12 @@ package main
 
 import (
 	"io"
-	"log"
+	_log "log"
 	"net/http"
 	"os"
 )
+
+var log = _log.New(os.Stderr, "", 0)
 
 func main() {
 	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
@@ -37,7 +39,11 @@ func main() {
 		}
 	})
 
-	if err := http.ListenAndServe(":"+os.Getenv("PORT"), nil); err != nil {
+	addr := ":" + os.Getenv("PORT")
+
+	log.Println("http-hello service is listening on ", addr)
+
+	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.Println(err)
 	}
 }

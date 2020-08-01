@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	_log "log"
 	"net"
 	"os"
 
@@ -13,6 +14,8 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/encoding/gzip"
 )
+
+var log = _log.New(os.Stderr, "", 0)
 
 func main() {
 	port := os.Getenv("PORT")
@@ -29,14 +32,14 @@ func main() {
 
 	listen, err := net.Listen("tcp", ep)
 	if err != nil {
-		println(err.Error())
+		log.Println(err)
 		os.Exit(2)
 	}
 
-	println("Starting: gRPC Listener", ep)
+	log.Println("grpc-hello is listener on ", ep)
 
 	if err := srv.Serve(listen); err != nil {
-		println(err.Error())
+		log.Println(err)
 		os.Exit(2)
 	}
 
