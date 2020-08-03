@@ -33,12 +33,12 @@ options:
   substitutionOption: ALLOW_LOOSE
 substitutions:
   _PLATFORM: managed
-  _LABELS: gcb-trigger-id=2a974e37-c19d-4459-81da-0410e3b80459
-  _TRIGGER_ID: 2a974e37-c19d-4459-81da-0410e3b80459
-  _SERVICE_NAME: grpc-hello
+  _LABELS: gcb-trigger-id=0dc3c061-78a8-4f53-9365-988e4111fac4
+  _TRIGGER_ID: 0dc3c061-78a8-4f53-9365-988e4111fac4
+  _SERVICE_NAME: test-continuous-build
   _DEPLOY_REGION: us-central1
   _GCR_HOSTNAME: us.gcr.io
 tags:
   - gcp-cloud-build-deploy-cloud-run
   - gcp-cloud-build-deploy-cloud-run-managed
-  - grpc-hello
+  - test-continuous-build
