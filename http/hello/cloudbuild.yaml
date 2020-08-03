@@ -5,9 +5,9 @@ steps:
       - '--no-cache'
       - '-t'
       - '$_GCR_HOSTNAME/$PROJECT_ID/$REPO_NAME/$_SERVICE_NAME:$COMMIT_SHA'
-      - grpc/hello
+      - http/hello
       - '-f'
-      - grpc/hello/Dockerfile
+      - http/hello/Dockerfile
     id: Build
   - name: gcr.io/cloud-builders/docker
     args:
@@ -33,10 +33,10 @@ options:
   substitutionOption: ALLOW_LOOSE
 substitutions:
   _PLATFORM: managed
-  _SERVICE_NAME: grpc-hello
+  _SERVICE_NAME: http-hello
   _DEPLOY_REGION: us-central1
   _GCR_HOSTNAME: us.gcr.io
 tags:
   - gcp-cloud-build-deploy-cloud-run
   - gcp-cloud-build-deploy-cloud-run-managed
-  - grpc-hello
+  - http-hello
