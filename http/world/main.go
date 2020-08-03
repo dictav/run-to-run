@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-var log = _log.New(os.Stderr, "", 0)
+var log = _log.New(os.Stderr, "", 0) //nolint:gochecknoglobals
 
 func main() {
 	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
@@ -15,7 +15,11 @@ func main() {
 		}
 
 		txt := r.URL.Query().Get("text")
-		rw.Write([]byte(txt + ", world!"))
+		_, err := rw.Write([]byte(txt + ", world!"))
+		if err != nil {
+			log.Println(err)
+			http.Error(rw, "could not write", http.StatusInternalServerError)
+		}
 	})
 
 	addr := ":" + os.Getenv("PORT")

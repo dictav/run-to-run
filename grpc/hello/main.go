@@ -7,26 +7,45 @@ import (
 	_log "log"
 	"net"
 	"os"
+	"strings"
 
 	"github.com/dictav/run-to-run/grpc/proto"
 
+	cmeta "cloud.google.com/go/compute/metadata"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/encoding/gzip"
+	"google.golang.org/grpc/metadata"
 )
 
-var log = _log.New(os.Stderr, "", 0)
+var log = _log.New(os.Stderr, "", 0) //nolint:gochecknoglobals
 
+//nolint:gomnd
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	ep := ":" + port
-	srv := grpc.NewServer()
+	var (
+		err error
 
-	s := &server{worldAddr: os.Getenv("RUN_WORLD_ADDR")}
+		ep  = ":" + port
+		srv = grpc.NewServer()
+	)
+
+	s := &server{
+		worldAddr: os.Getenv("RUN_WORLD_ADDR"),
+		authToken: os.Getenv("AUTH_TOKEN"),
+	}
+
+	if s.authToken == "" {
+		s.authToken, err = cmeta.Get(s.tokenURL())
+		if err != nil {
+			log.Println(err)
+			os.Exit(2)
+		}
+	}
 
 	proto.RegisterHelloServer(srv, s)
 
@@ -48,6 +67,14 @@ func main() {
 
 type server struct {
 	worldAddr string
+	authToken string
+}
+
+func (s *server) tokenURL() string {
+	cmps := strings.Split(s.worldAddr, ":")
+	host := cmps[0]
+
+	return "/instance/service-accounts/default/identity?audience=https://" + host + "/"
 }
 
 func (s *server) Hello(ctx context.Context, r *proto.HelloRequest) (*proto.HelloResponse, error) {
@@ -58,6 +85,13 @@ func (s *server) Hello(ctx context.Context, r *proto.HelloRequest) (*proto.Hello
 
 	c := proto.NewWorldClient(con)
 	req := &proto.WorldRequest{Text: "hello"}
+
+	if s.authToken != "" {
+		ctx = metadata.AppendToOutgoingContext(
+			ctx,
+			"authorization", "Bearer "+s.authToken,
+		)
+	}
 
 	res, err := c.World(ctx, req)
 	if err != nil {

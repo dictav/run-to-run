@@ -5,12 +5,12 @@ import (
 	_log "log"
 	"net/http"
 	"os"
+
+	"cloud.google.com/go/compute/metadata"
 )
 
 var (
-	log = _log.New(os.Stderr, "", 0)
-
-	worldURL = ""
+	log = _log.New(os.Stderr, "", 0) //nolint:gochecknoglobals
 )
 
 func main() {
@@ -20,18 +20,36 @@ func main() {
 	}
 
 	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
-		for k, v := range r.URL.Query() {
+		log.Printf("headers (%d):", len(r.Header))
+		for k, v := range r.Header {
 			log.Printf("%s: %v", k, v)
 		}
 
-		res, err := http.Get(worldURL + "?text=hello")
+		tokenURL := "/instance/service-accounts/default/identity?audience=" + worldURL
+		idToken, err := metadata.Get(tokenURL)
+		if err != nil {
+			log.Println(err)
+			http.Error(rw, "could not create token", http.StatusInternalServerError)
+			return
+		}
+
+		req, err := http.NewRequest(http.MethodGet, worldURL, nil)
+		if err != nil {
+			log.Println(err)
+			http.Error(rw, "invalid request", http.StatusInternalServerError)
+			return
+		}
+
+		req.Header.Add("Authorization", "Bearer "+idToken)
+
+		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			log.Println(err)
 			http.Error(rw, "could not run", http.StatusInternalServerError)
 			return
 		}
 
-		if res.StatusCode != 200 {
+		if res.StatusCode != http.StatusOK {
 			log.Printf("unexpected status: %d", res.StatusCode)
 			http.Error(rw, "run error", http.StatusInternalServerError)
 			return
