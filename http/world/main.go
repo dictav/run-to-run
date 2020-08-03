@@ -10,6 +10,10 @@ var log = _log.New(os.Stderr, "", 0)
 
 func main() {
 	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
+		for k, v := range r.URL.Query() {
+			log.Printf("%s: %v", k, v)
+		}
+
 		txt := r.URL.Query().Get("text")
 		rw.Write([]byte(txt + ", world!"))
 	})

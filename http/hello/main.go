@@ -7,17 +7,24 @@ import (
 	"os"
 )
 
-var log = _log.New(os.Stderr, "", 0)
+var (
+	log = _log.New(os.Stderr, "", 0)
+
+	worldURL = ""
+)
 
 func main() {
+	worldURL := os.Getenv("RUN_WORLD_URL")
+	if worldURL == "" {
+		log.Fatal("RUN_WORLD_URL is required")
+	}
+
 	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
-		url := os.Getenv("RUN_WORLD_ADDR")
-		if url == "" {
-			http.Error(rw, "can not run", http.StatusInternalServerError)
-			return
+		for k, v := range r.URL.Query() {
+			log.Printf("%s: %v", k, v)
 		}
 
-		res, err := http.Get(url + "?text=hello")
+		res, err := http.Get(worldURL + "?text=hello")
 		if err != nil {
 			log.Println(err)
 			http.Error(rw, "could not run", http.StatusInternalServerError)
