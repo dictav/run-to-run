@@ -14,7 +14,6 @@ import (
 	cmeta "cloud.google.com/go/compute/metadata"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/encoding/gzip"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -104,9 +103,7 @@ func (s *server) Hello(ctx context.Context, r *proto.HelloRequest) (*proto.Hello
 }
 
 func dial(addr string, insecure bool) (*grpc.ClientConn, error) {
-	opts := []grpc.DialOption{
-		grpc.WithDefaultCallOptions(grpc.UseCompressor(gzip.Name)),
-	}
+	opts := []grpc.DialOption{}
 
 	if insecure {
 		opts = append(opts, grpc.WithInsecure())

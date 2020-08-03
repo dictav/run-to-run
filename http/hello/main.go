@@ -33,7 +33,7 @@ func main() {
 			return
 		}
 
-		req, err := http.NewRequest(http.MethodGet, worldURL, nil)
+		req, err := http.NewRequest(http.MethodGet, worldURL+"?text=hello", nil)
 		if err != nil {
 			log.Println(err)
 			http.Error(rw, "invalid request", http.StatusInternalServerError)
